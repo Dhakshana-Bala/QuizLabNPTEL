@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="QuizLab — a 12-week interactive MCQ quiz on Performance &amp; Reward Management.">
+<title>QuizLab — Weekly MCQ Challenge</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= APP SHELL ================= -->
+<div class="app-shell">
+
+  <!-- ---------- HEADER ---------- -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>
+          <circle cx="12" cy="12" r="4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>QuizLab</h1>
+        <p>Performance &amp; Reward Management</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="dashboardBtn" class="btn btn-ghost btn-sm" hidden>Dashboard</button>
+
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle colour theme" title="Toggle theme">
+        <svg id="themeIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+
+      <button id="settingsBtn" class="icon-btn" aria-label="Open settings" title="Settings">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ---------- MAIN ---------- -->
+  <main class="app-main">
+
+    <!-- ============================================================
+         VIEW 1 — DASHBOARD
+    ============================================================ -->
+    <section id="dashboardView" class="view" aria-label="Dashboard">
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <p class="hero-eyebrow">12 weeks &middot; Performance &amp; Reward Management</p>
+        <h2 class="hero-title">QuizLab — Weekly MCQ Challenge</h2>
+        <p class="hero-subtitle">
+          Master 12 weeks of Performance &amp; Reward Management with
+          <strong id="dashTotalQuestions">120</strong> practice questions.
+          Track your scores, review every answer, and build exam-day confidence.
+        </p>
+        <div class="hero-actions">
+          <button id="practiceAllBtn" class="btn btn-primary btn-lg">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>
+            Practice All Weeks
+          </button>
+          <button id="randomQuizBtn" class="btn btn-secondary btn-lg">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+            Quick Random Quiz
+          </button>
+          <button id="customQuizBtn" class="btn btn-ghost btn-lg">Custom Quiz</button>
+        </div>
+      </section>
+
+      <!-- Overall stats -->
+      <section class="stats-grid" aria-label="Overall statistics">
+        <div class="stat-card">
+          <span class="stat-value" id="statTotalQuestions">120</span>
+          <span class="stat-label">Questions</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statAttempts">0</span>
+          <span class="stat-label">Attempts</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statAvg">—</span>
+          <span class="stat-label">Average score</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statBest">—</span>
+          <span class="stat-label">Best score</span>
+        </div>
+      </section>
+
+      <!-- Overall progress -->
+      <section class="panel panel-progress">
+        <div class="panel-head panel-head-row">
+          <div>
+            <h3>Overall progress</h3>
+            <p id="overallProgressText">No questions attempted yet.</p>
+          </div>
+          <span class="pill" id="overallProgressPill">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="overallProgressFill"></div>
+        </div>
+      </section>
+
+      <!-- Continue learning -->
+      <section id="continueSection" class="continue-card" hidden>
+        <div class="continue-left">
+          <p class="continue-eyebrow">Continue learning</p>
+          <h3 id="continueTitle">Week 1</h3>
+          <p id="continueMeta">Saved attempt</p>
+        </div>
+        <div class="continue-actions">
+          <button id="continueBtn" class="btn btn-primary">Resume</button>
+          <button id="discardAttemptBtn" class="btn btn-ghost btn-sm">Discard</button>
+        </div>
+      </section>
+
+      <!-- Weekly grid -->
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Weekly quizzes</h3>
+          <p>Pick a week to practise — 10 questions each</p>
+        </div>
+        <div id="weeksGrid" class="weeks-grid"><!-- injected by script.js --></div>
+      </section>
+
+    </section>
+
+    <!-- ============================================================
+         VIEW 2 — QUIZ
+    ============================================================ -->
+    <section id="quizView" class="view" aria-label="Quiz" hidden>
+
+      <div class="quiz-header">
+        <div class="quiz-header-left">
+          <button id="exitQuizBtn" class="btn btn-ghost btn-sm">← Exit</button>
+          <div class="quiz-heading">
+            <h2 id="quizTitle">Week 1 Quiz</h2>
+            <p id="quizSubtitle">10 questions</p>
+          </div>
+        </div>
+        <div class="quiz-header-right">
+          <span id="quizTimer" class="timer-chip" hidden>00:00</span>
+          <button id="fullscreenBtn" class="icon-btn" aria-label="Toggle full screen" title="Full screen">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M16 21h3a2 2 0 0 0 2-2v-3M8 21H5a2 2 0 0 1-2-2v-3"/>
+            </svg>
+          </button>
+          <button id="paletteToggleBtn" class="icon-btn palette-toggle" aria-label="Toggle question palette" aria-expanded="false">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar"><div id="quizProgressFill"></div></div>
+        <div class="quiz-progress-meta">
+          <span id="quizCounter">Question 1 of 10</span>
+          <span id="quizAnsweredCount">0 answered</span>
+        </div>
+      </div>
+
+      <div class="quiz-layout">
+
+        <!-- Question palette -->
+        <aside id="palettePanel" class="palette-panel" aria-label="Question navigator">
+          <div class="palette-head">
+            <h4>Questions</h4>
+            <button id="paletteCloseBtn" class="icon-btn palette-close" aria-label="Close palette">✕</button>
+          </div>
+          <div id="paletteGrid" class="palette-grid"></div>
+          <ul class="palette-legend">
+            <li><span class="dot dot-answered"></span>Answered</li>
+            <li><span class="dot dot-unanswered"></span>Unanswered</li>
+            <li><span class="dot dot-review"></span>Marked</li>
+            <li><span class="dot dot-current"></span>Current</li>
+          </ul>
+          <button id="submitQuizBtnSide" class="btn btn-accent btn-block">Submit Quiz</button>
+        </aside>
+
+        <!-- Question area -->
+        <div class="question-area">
+          <article class="question-card">
+            <div class="question-top">
+              <span id="questionBadge" class="q-badge">Q1</span>
+              <span id="questionWeekTag" class="q-week-tag">Week 1</span>
+              <button id="markReviewBtn" class="btn btn-ghost btn-sm mark-btn" aria-pressed="false">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                Mark for review
+              </button>
+            </div>
+
+            <h3 id="questionText" class="question-text"></h3>
+
+            <div id="optionsList" class="options-list" role="radiogroup" aria-label="Answer options"></div>
+
+            <div id="feedbackBox" class="feedback-box" role="status" hidden>
+              <p id="feedbackText" class="feedback-text"></p>
+              <p id="explanationText" class="explanation" hidden></p>
+            </div>
+
+            <div class="question-tools">
+              <button id="revealBtn" class="btn btn-secondary btn-sm" hidden>Check Answer</button>
+              <button id="clearAnswerBtn" class="btn btn-ghost btn-sm">Clear selection</button>
+            </div>
+          </article>
+
+          <div class="quiz-nav">
+            <button id="prevBtn" class="btn btn-secondary">← Previous</button>
+            <button id="nextBtn" class="btn btn-primary">Next →</button>
+            <button id="submitQuizBtn" class="btn btn-accent">Submit Quiz</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         VIEW 3 — RESULTS
+    ============================================================ -->
+    <section id="resultsView" class="view" aria-label="Results" hidden>
+
+      <div class="results-hero">
+        <div id="scoreCircle" class="score-circle">
+          <div class="score-circle-inner">
+            <span id="resultsPercent">0%</span>
+            <small>score</small>
+          </div>
+        </div>
+        <div class="results-summary">
+          <h2 id="resultsTitle">Quiz complete</h2>
+          <p id="resultsSubtitle"></p>
+          <p class="results-score-line">
+            <span id="resultsScore">0</span>
+            <span class="muted">/</span>
+            <span id="resultsMaxMarks">10</span>
+            <span class="muted">marks</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="results-stats">
+        <div class="stat-card stat-ok"><span class="stat-value" id="resultsCorrect">0</span><span class="stat-label">Correct</span></div>
+        <div class="stat-card stat-bad"><span class="stat-value" id="resultsIncorrect">0</span><span class="stat-label">Incorrect</span></div>
+        <div class="stat-card"><span class="stat-value" id="resultsUnanswered">0</span><span class="stat-label">Unanswered</span></div>
+        <div class="stat-card"><span class="stat-value" id="resultsTime">—</span><span class="stat-label">Time taken</span></div>
+      </div>
+
+      <section class="panel" id="weekBreakdownPanel" hidden>
+        <div class="panel-head">
+          <h3>Breakdown by week</h3>
+          <p>How you performed in each week covered by this quiz</p>
+        </div>
+        <div id="weekBreakdown" class="breakdown-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head panel-head-row">
+          <div>
+            <h3>Answer review</h3>
+            <p>Every question, your answer and the correct answer</p>
+          </div>
+          <div class="review-filters" role="group" aria-label="Filter review">
+            <button class="chip is-active" data-filter="all">All</button>
+            <button class="chip" data-filter="correct">Correct</button>
+            <button class="chip" data-filter="incorrect">Incorrect</button>
+            <button class="chip" data-filter="unanswered">Unanswered</button>
+          </div>
+        </div>
+        <div id="reviewList" class="review-list"></div>
+      </section>
+
+      <div class="results-actions">
+        <button id="retryQuizBtn" class="btn btn-primary">Retry Quiz</button>
+        <button id="retryIncorrectBtn" class="btn btn-secondary">Retry Incorrect</button>
+        <button id="retryUnansweredBtn" class="btn btn-secondary">Retry Unanswered</button>
+        <button id="exportCsvBtn" class="btn btn-ghost">Export CSV</button>
+        <button id="chooseAnotherBtn" class="btn btn-ghost">Choose Another Quiz</button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>QuizLab &middot; <span id="footerQuestionCount">120</span> questions &middot; Built by Dhakshana Bala S</p>
+  </footer>
+</div>
+
+<!-- ============================================================
+     MODAL — QUIZ SETUP
+============================================================ -->
+<div id="setupModal" class="modal" hidden>
+  <div class="modal-backdrop" data-close="setupModal"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+    <div class="modal-head">
+      <h3 id="setupTitle">Configure quiz</h3>
+      <button class="icon-btn" data-close="setupModal" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <fieldset class="field-group">
+        <legend>Weeks included</legend>
+        <div class="field-row">
+          <button id="setupSelectAll" type="button" class="btn btn-ghost btn-sm">Select all</button>
+          <button id="setupClearAll" type="button" class="btn btn-ghost btn-sm">Clear selection</button>
+        </div>
+        <div id="setupWeekList" class="week-check-list"></div>
+        <p class="hint" id="setupPoolHint"></p>
+      </fieldset>
+
+      <div class="field-group">
+        <label for="setupCount">Number of questions</label>
+        <select id="setupCount"></select>
+      </div>
+
+      <div class="field-group">
+        <label for="setupOrder">Question order</label>
+        <select id="setupOrder">
+          <option value="original">Original order</option>
+          <option value="shuffleWithinWeek">Shuffle within each week</option>
+          <option value="shuffleAcross">Shuffle across all selected weeks</option>
+        </select>
+      </div>
+
+      <label class="switch-row">
+        <input type="checkbox" id="setupShuffleOptions">
+        <span>Shuffle answer options</span>
+      </label>
+
+      <div class="field-group">
+        <label for="setupFeedback">Answer feedback</label>
+        <select id="setupFeedback">
+          <option value="instant">Instant feedback</option>
+          <option value="ondemand">Reveal on demand</option>
+          <option value="exam">Exam mode (answers shown after submit)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="setupMaxMarks">Maximum marks</label>
+        <select id="setupMaxMarks">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="total">Total questions</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input type="number" id="setupCustomMarks" class="input-inline" min="1" max="1000" step="1" value="25" hidden>
+      </div>
+
+      <label class="switch-row">
+        <input type="checkbox" id="setupTimer">
+        <span>Enable countdown timer</span>
+      </label>
+      <div class="field-group" id="setupTimerMinutesWrap" hidden>
+        <label for="setupTimerMinutes">Timer length (minutes)</label>
+        <input type="number" id="setupTimerMinutes" class="input-inline" min="1" max="180" step="1" value="10">
+      </div>
+
+      <label class="switch-row">
+        <input type="checkbox" id="setupNegative">
+        <span>Negative marking</span>
+      </label>
+      <div class="field-group" id="setupPenaltyWrap" hidden>
+        <label for="setupPenalty">Penalty per wrong answer (marks)</label>
+        <input type="number" id="setupPenalty" class="input-inline" min="0" max="10" step="0.25" value="0.25">
+      </div>
+
+      <label class="switch-row">
+        <input type="checkbox" id="setupAllowChange" checked>
+        <span>Allow changing answers</span>
+      </label>
+
+    </div>
+
+    <div class="modal-foot">
+      <button id="setupCancelBtn" class="btn btn-ghost" type="button">Cancel</button>
+      <button id="setupStartBtn" class="btn btn-primary" type="button">Start Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL — SETTINGS
+============================================================ -->
+<div id="settingsModal" class="modal" hidden>
+  <div class="modal-backdrop" data-close="settingsModal"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-head">
+      <h3 id="settingsTitle">Settings</h3>
+      <button class="icon-btn" data-close="settingsModal" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="field-group">
+        <label for="settingsTheme">Theme</label>
+        <select id="settingsTheme">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="settingsFeedback">Default answer feedback</label>
+        <select id="settingsFeedback">
+          <option value="instant">Instant feedback</option>
+          <option value="ondemand">Reveal on demand</option>
+          <option value="exam">Exam mode</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="settingsMaxMarks">Default maximum marks</label>
+        <select id="settingsMaxMarks">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="total">Total questions</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="settingsOrder">Default question order</label>
+        <select id="settingsOrder">
+          <option value="original">Original order</option>
+          <option value="shuffleWithinWeek">Shuffle within each week</option>
+          <option value="shuffleAcross">Shuffle across all selected weeks</option>
+        </select>
+      </div>
+
+      <label class="switch-row">
+        <input type="checkbox" id="settingsShuffleOptions">
+        <span>Shuffle answer options by default</span>
+      </label>
+
+      <label class="switch-row">
+        <input type="checkbox" id="settingsShowExplanation" checked>
+        <span>Show explanations when available</span>
+      </label>
+
+      <label class="switch-row">
+        <input type="checkbox" id="settingsAllowChange" checked>
+        <span>Allow changing answers by default</span>
+      </label>
+
+      <label class="switch-row">
+        <input type="checkbox" id="settingsTimer">
+        <span>Enable timer by default</span>
+      </label>
+
+      <hr class="divider">
+
+      <div class="settings-danger">
+        <div>
+          <h4>Reset everything</h4>
+          <p>Deletes all attempts, best scores and saved progress. Settings are kept.</p>
+        </div>
+        <button id="resetProgressBtn" class="btn btn-danger btn-sm" type="button">Reset progress</button>
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+      <button id="restoreDefaultsBtn" class="btn btn-ghost" type="button">Restore defaults</button>
+      <button id="settingsDoneBtn" class="btn btn-primary" type="button">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL — CONFIRM
+============================================================ -->
+<div id="confirmModal" class="modal" hidden>
+  <div class="modal-backdrop" data-close="confirmModal"></div>
+  <div class="modal-card modal-sm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-head">
+      <h3 id="confirmTitle">Are you sure?</h3>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMessage" class="confirm-message"></p>
+    </div>
+    <div class="modal-foot">
+      <button id="confirmCancelBtn" class="btn btn-ghost" type="button">Cancel</button>
+      <button id="confirmOkBtn" class="btn btn-danger" type="button">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOAST + NOSCRIPT
+============================================================ -->
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<noscript>
+  <div class="noscript-banner">
+    QuizLab needs JavaScript enabled to run the quizzes. Please enable JavaScript in your browser.
+  </div>
+</noscript>
+
+<script src="script.js"></script>
+</body>
+</html>
