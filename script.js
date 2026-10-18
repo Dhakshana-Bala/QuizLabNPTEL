@@ -1496,7 +1496,7 @@
 
   let settings = { ...defaultSettings };
   let progress = {
-    history: [], // array of attempt objects { id, date, weeks, score, maxMarks, percentage, correct, incorrect, unanswered, timeTaken, questions: [...] }
+    history: [], // array of attempt objects
     weekStats: {} // { 1: { bestScore, attempts } }
   };
   let activeAttempt = null;
@@ -1655,6 +1655,7 @@
   }
 
   function showToast(msg, type = '') {
+    if (!el.toast) return;
     el.toast.textContent = msg;
     el.toast.className = `toast ${type ? 'is-' + type : ''}`;
     el.toast.hidden = false;
@@ -1667,26 +1668,29 @@
   }
 
   function openModal(modal) {
-    modal.hidden = false;
+    if (modal) modal.hidden = false;
   }
 
   function closeModal(modal) {
-    modal.hidden = true;
+    if (modal) modal.hidden = true;
   }
 
   let confirmCallback = null;
   function showConfirm(title, msg, callback) {
-    el.confirmTitle.textContent = title;
-    el.confirmMessage.textContent = msg;
+    if (!el.confirmModal) return callback(); // Fail-safe if modal is missing
+    if (el.confirmTitle) el.confirmTitle.textContent = title;
+    if (el.confirmMessage) el.confirmMessage.textContent = msg;
     confirmCallback = callback;
     openModal(el.confirmModal);
   }
 
-  el.confirmOkBtn.addEventListener('click', () => {
-    closeModal(el.confirmModal);
-    if (confirmCallback) confirmCallback();
-  });
-  el.confirmCancelBtn.addEventListener('click', () => closeModal(el.confirmModal));
+  if (el.confirmOkBtn) {
+    el.confirmOkBtn.addEventListener('click', () => {
+      closeModal(el.confirmModal);
+      if (confirmCallback) confirmCallback();
+    });
+  }
+  if (el.confirmCancelBtn) el.confirmCancelBtn.addEventListener('click', () => closeModal(el.confirmModal));
   $$('[data-close="confirmModal"]').forEach(b => b.addEventListener('click', () => closeModal(el.confirmModal)));
 
   /* ============================================================
@@ -1746,928 +1750,86 @@
     }
   }
 
-  el.themeToggle.addEventListener('click', () => {
-    settings.theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(settings.theme);
-    saveSettings();
-  });
+  if (el.themeToggle) {
+    el.themeToggle.addEventListener('click', () => {
+      settings.theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(settings.theme);
+      saveSettings();
+    });
+  }
 
   function openSettings() {
-    el.settingsTheme.value = settings.theme;
-    el.settingsFeedback.value = settings.feedback;
-    el.settingsMaxMarks.value = settings.maxMarks;
-    el.settingsOrder.value = settings.order;
-    el.settingsShuffleOptions.checked = settings.shuffleOptions;
-    el.settingsShowExplanation.checked = settings.showExplanation;
-    el.settingsAllowChange.checked = settings.allowChange;
-    el.settingsTimer.checked = settings.timer;
+    if (!el.settingsModal) return;
+    if (el.settingsTheme) el.settingsTheme.value = settings.theme;
+    if (el.settingsFeedback) el.settingsFeedback.value = settings.feedback;
+    if (el.settingsMaxMarks) el.settingsMaxMarks.value = settings.maxMarks;
+    if (el.settingsOrder) el.settingsOrder.value = settings.order;
+    if (el.settingsShuffleOptions) el.settingsShuffleOptions.checked = settings.shuffleOptions;
+    if (el.settingsShowExplanation) el.settingsShowExplanation.checked = settings.showExplanation;
+    if (el.settingsAllowChange) el.settingsAllowChange.checked = settings.allowChange;
+    if (el.settingsTimer) el.settingsTimer.checked = settings.timer;
     openModal(el.settingsModal);
   }
 
-  el.settingsBtn.addEventListener('click', openSettings);
+  if (el.settingsBtn) el.settingsBtn.addEventListener('click', openSettings);
   $$('[data-close="settingsModal"]').forEach(b => b.addEventListener('click', () => closeModal(el.settingsModal)));
 
-  el.settingsDoneBtn.addEventListener('click', () => {
-    settings.theme = el.settingsTheme.value;
-    settings.feedback = el.settingsFeedback.value;
-    settings.maxMarks = el.settingsMaxMarks.value;
-    settings.order = el.settingsOrder.value;
-    settings.shuffleOptions = el.settingsShuffleOptions.checked;
-    settings.showExplanation = el.settingsShowExplanation.checked;
-    settings.allowChange = el.settingsAllowChange.checked;
-    settings.timer = el.settingsTimer.checked;
-    applyTheme(settings.theme);
-    saveSettings();
-    closeModal(el.settingsModal);
-    showToast('Settings saved', 'success');
-  });
-
-  el.restoreDefaultsBtn.addEventListener('click', () => {
-    settings = { ...defaultSettings };
-    applyTheme(settings.theme);
-    saveSettings();
-    openSettings();
-    showToast('Defaults restored', 'success');
-  });
-
-  el.resetProgressBtn.addEventListener('click', () => {
-    showConfirm('Reset Progress', 'Are you sure? This will permanently delete all your attempts and scores. Settings will be kept.', () => {
-      progress = { history: [], weekStats: {} };
-      activeAttempt = null;
-      saveProgress();
-      saveActiveAttempt();
+  if (el.settingsDoneBtn) {
+    el.settingsDoneBtn.addEventListener('click', () => {
+      settings.theme = el.settingsTheme.value;
+      settings.feedback = el.settingsFeedback.value;
+      settings.maxMarks = el.settingsMaxMarks.value;
+      settings.order = el.settingsOrder.value;
+      settings.shuffleOptions = el.settingsShuffleOptions.checked;
+      settings.showExplanation = el.settingsShowExplanation.checked;
+      settings.allowChange = el.settingsAllowChange.checked;
+      settings.timer = el.settingsTimer.checked;
+      applyTheme(settings.theme);
+      saveSettings();
       closeModal(el.settingsModal);
-      renderDashboard();
-      showToast('All progress reset', 'success');
+      showToast('Settings saved', 'success');
     });
-  });
+  }
+
+  if (el.restoreDefaultsBtn) {
+    el.restoreDefaultsBtn.addEventListener('click', () => {
+      settings = { ...defaultSettings };
+      applyTheme(settings.theme);
+      saveSettings();
+      openSettings();
+      showToast('Defaults restored', 'success');
+    });
+  }
+
+  if (el.resetProgressBtn) {
+    el.resetProgressBtn.addEventListener('click', () => {
+      showConfirm('Reset Progress', 'Are you sure? This will permanently delete all your attempts and scores. Settings will be kept.', () => {
+        progress = { history: [], weekStats: {} };
+        activeAttempt = null;
+        saveProgress();
+        saveActiveAttempt();
+        closeModal(el.settingsModal);
+        renderDashboard();
+        showToast('All progress reset', 'success');
+      });
+    });
+  }
 
   /* ============================================================
      7. DASHBOARD
      ============================================================ */
   function switchView(view) {
-    [el.dashboardView, el.quizView, el.resultsView].forEach(v => v.hidden = true);
-    view.hidden = false;
+    if (el.dashboardView) el.dashboardView.hidden = true;
+    if (el.quizView) el.quizView.hidden = true;
+    if (el.resultsView) el.resultsView.hidden = true;
+    
+    if (view) view.hidden = false;
     window.scrollTo(0, 0);
-    el.dashboardBtn.hidden = view === el.dashboardView;
-  }
-
-  el.dashboardBtn.addEventListener('click', () => {
-    if (activeAttempt && !currentQuiz) {
-      // Just show dashboard, active attempt stays in memory
-    } else if (currentQuiz) {
-      showConfirm('Abandon Quiz?', 'Your current progress will be lost.', () => {
-        currentQuiz = null;
-        activeAttempt = null;
-        saveActiveAttempt();
-        renderDashboard();
-        switchView(el.dashboardView);
-      });
-      return;
-    }
-    renderDashboard();
-    switchView(el.dashboardView);
-  });
-
-  function renderDashboard() {
-    // Stats
-    el.dashTotalQuestions.textContent = QUESTION_BANK.length;
-    el.footerQuestionCount.textContent = QUESTION_BANK.length;
-    el.statTotalQuestions.textContent = QUESTION_BANK.length;
-
-    const attempts = progress.history.length;
-    el.statAttempts.textContent = attempts;
-
-    if (attempts > 0) {
-      const totalPct = progress.history.reduce((acc, a) => acc + a.percentage, 0);
-      el.statAvg.textContent = Math.round(totalPct / attempts) + '%';
-      const best = Math.max(...progress.history.map(a => a.percentage));
-      el.statBest.textContent = Math.round(best) + '%';
-    } else {
-      el.statAvg.textContent = '—';
-      el.statBest.textContent = '—';
-    }
-
-    // Overall progress
-    const uniqueQuestionsAnswered = new Set();
-    progress.history.forEach(a => a.questions.forEach(q => uniqueQuestionsAnswered.add(q.id)));
-    const pctAnswered = Math.round((uniqueQuestionsAnswered.size / QUESTION_BANK.length) * 100) || 0;
-
-    el.overallProgressText.textContent = uniqueQuestionsAnswered.size === 0
-      ? 'No questions attempted yet.'
-      : `${uniqueQuestionsAnswered.size} of ${QUESTION_BANK.length} unique questions attempted.`;
-
-    el.overallProgressPill.textContent = pctAnswered + '%';
-    el.overallProgressFill.style.width = pctAnswered + '%';
-
-    // Continue learning
-    if (activeAttempt) {
-      el.continueSection.hidden = false;
-      const weeksLabel = activeAttempt.config.weeks.length === 12
-        ? 'All Weeks'
-        : 'Week' + (activeAttempt.config.weeks.length > 1 ? 's ' : ' ') + activeAttempt.config.weeks.join(', ');
-      el.continueTitle.textContent = `Resume: ${weeksLabel} Quiz`;
-      const answered = Object.keys(activeAttempt.answers).length;
-      el.continueMeta.textContent = `${answered} of ${activeAttempt.questions.length} answered`;
-    } else {
-      el.continueSection.hidden = true;
-    }
-
-    // Weeks Grid
-    el.weeksGrid.innerHTML = '';
-    for (let w = 1; w <= 12; w++) {
-      const weekQuestions = QUESTION_BANK.filter(q => q.week === w);
-      const weekHistory = progress.history.filter(a => a.weeks.includes(w));
-      const bestScore = weekHistory.length > 0
-        ? Math.max(...weekHistory.map(a => {
-            const wCorrect = a.questions.filter(q => q.week === w && q.userAnswer === q.correctAnswer).length;
-            const wTotal = a.questions.filter(q => q.week === w).length;
-            return (wCorrect / wTotal) * 100;
-          }))
-        : null;
-
-      let status = 'Not started';
-      let statusClass = '';
-      if (activeAttempt && activeAttempt.config.weeks.includes(w)) {
-        status = 'In progress';
-        statusClass = 'is-progress';
-      } else if (weekHistory.length > 0) {
-        status = 'Completed';
-        statusClass = 'is-done';
-      }
-
-      const card = document.createElement('div');
-      card.className = 'week-card';
-      card.innerHTML = `
-        <div class="week-card-top">
-          <span class="week-num">Week ${w}</span>
-          <span class="week-status ${statusClass}">${status}</span>
-        </div>
-        <h4 class="week-title">Week ${w} Quiz</h4>
-        <p class="week-meta">${weekQuestions.length} questions</p>
-        <p class="week-score">${bestScore !== null ? `Best score: <strong>${Math.round(bestScore)}%</strong>` : 'No attempts yet'}</p>
-        <button class="btn btn-primary btn-sm" data-week="${w}">Start Quiz</button>
-      `;
-      card.querySelector('button').addEventListener('click', () => {
-        openSetupModal([w]);
-      });
-      el.weeksGrid.appendChild(card);
+    
+    if (el.dashboardBtn) {
+      el.dashboardBtn.hidden = view === el.dashboardView;
     }
   }
 
-  /* ============================================================
-     8. SETUP MODAL
-     ============================================================ */
-  let setupSelectedWeeks = new Set([1]);
-
-  function openSetupModal(weeks = [1], title = 'Configure quiz') {
-    setupSelectedWeeks = new Set(weeks);
-    el.setupTitle.textContent = title;
-
-    // Render week checkboxes
-    el.setupWeekList.innerHTML = '';
-    for (let w = 1; w <= 12; w++) {
-      const label = document.createElement('label');
-      label.className = 'week-check';
-      if (setupSelectedWeeks.has(w)) label.classList.add('is-checked');
-
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.value = w;
-      cb.checked = setupSelectedWeeks.has(w);
-
-      cb.addEventListener('change', () => {
-        if (cb.checked) {
-          setupSelectedWeeks.add(w);
-          label.classList.add('is-checked');
-        } else {
-          setupSelectedWeeks.delete(w);
-          label.classList.remove('is-checked');
-        }
-        updateSetupPoolHint();
-      });
-
-      label.appendChild(cb);
-      label.appendChild(document.createTextNode(` Week ${w}`));
-      el.setupWeekList.appendChild(label);
-    }
-
-    // Reset other fields to defaults/settings
-    el.setupOrder.value = settings.order;
-    el.setupShuffleOptions.checked = settings.shuffleOptions;
-    el.setupFeedback.value = settings.feedback;
-    el.setupMaxMarks.value = settings.maxMarks;
-    el.setupCustomMarks.hidden = settings.maxMarks !== 'custom';
-    el.setupTimer.checked = settings.timer;
-    el.setupTimerMinutesWrap.hidden = !settings.timer;
-    el.setupAllowChange.checked = settings.allowChange;
-
-    updateSetupPoolHint();
-    openModal(el.setupModal);
-  }
-
-  function updateSetupPoolHint() {
-    const poolSize = QUESTION_BANK.filter(q => setupSelectedWeeks.has(q.week)).length;
-    el.setupPoolHint.textContent = `${poolSize} questions available in the selected weeks.`;
-
-    // Populate count options
-    const counts = [5, 10, 15, 20, 30, 50, poolSize].filter(c => c <= poolSize);
-    const uniqueCounts = [...new Set(counts)].sort((a, b) => a - b);
-    if (uniqueCounts[uniqueCounts.length - 1] !== poolSize) uniqueCounts.push(poolSize);
-
-    el.setupCount.innerHTML = '';
-    uniqueCounts.forEach(c => {
-      if (c === 0) return;
-      const opt = document.createElement('option');
-      opt.value = c;
-      opt.textContent = c === poolSize ? `All ${poolSize} questions` : `${c} questions`;
-      if (c === poolSize) opt.selected = true;
-      el.setupCount.appendChild(opt);
-    });
-  }
-
-  el.setupSelectAll.addEventListener('click', () => {
-    $$('input[type="checkbox"]', el.setupWeekList).forEach(cb => {
-      if (!cb.checked) {
-        cb.checked = true;
-        cb.dispatchEvent(new Event('change'));
-      }
-    });
-  });
-
-  el.setupClearAll.addEventListener('click', () => {
-    $$('input[type="checkbox"]', el.setupWeekList).forEach(cb => {
-      if (cb.checked) {
-        cb.checked = false;
-        cb.dispatchEvent(new Event('change'));
-      }
-    });
-  });
-
-  el.setupMaxMarks.addEventListener('change', () => {
-    el.setupCustomMarks.hidden = el.setupMaxMarks.value !== 'custom';
-  });
-
-  el.setupTimer.addEventListener('change', () => {
-    el.setupTimerMinutesWrap.hidden = !el.setupTimer.checked;
-  });
-
-  el.setupNegative.addEventListener('change', () => {
-    el.setupPenaltyWrap.hidden = !el.setupNegative.checked;
-  });
-
-  $$('[data-close="setupModal"]').forEach(b => b.addEventListener('click', () => closeModal(el.setupModal)));
-  el.setupCancelBtn.addEventListener('click', () => closeModal(el.setupModal));
-
-  el.setupStartBtn.addEventListener('click', () => {
-    if (setupSelectedWeeks.size === 0) {
-      showToast('Please select at least one week.', 'error');
-      return;
-    }
-
-    const config = {
-      weeks: Array.from(setupSelectedWeeks).sort((a, b) => a - b),
-      count: parseInt(el.setupCount.value, 10),
-      order: el.setupOrder.value,
-      shuffleOptions: el.setupShuffleOptions.checked,
-      feedback: el.setupFeedback.value,
-      maxMarks: el.setupMaxMarks.value === 'custom' ? parseInt(el.setupCustomMarks.value, 10) : (el.setupMaxMarks.value === 'total' ? 'total' : parseInt(el.setupMaxMarks.value, 10)),
-      timer: el.setupTimer.checked,
-      timerMinutes: parseInt(el.setupTimerMinutes.value, 10),
-      negative: el.setupNegative.checked,
-      penalty: parseFloat(el.setupPenalty.value),
-      allowChange: el.setupAllowChange.checked
-    };
-
-    closeModal(el.setupModal);
-    startQuiz(config);
-  });
-
-  // Quick Start Buttons
-  el.practiceAllBtn.addEventListener('click', () => {
-    openSetupModal(Array.from({ length: 12 }, (_, i) => i + 1), 'Practice All Weeks');
-  });
-
-  el.randomQuizBtn.addEventListener('click', () => {
-    const randomWeek = Math.floor(Math.random() * 12) + 1;
-    openSetupModal([randomWeek], `Quick Random: Week ${randomWeek}`);
-  });
-
-  el.customQuizBtn.addEventListener('click', () => {
-    openSetupModal(Array.from({ length: 12 }, (_, i) => i + 1), 'Custom Quiz');
-  });
-
-  el.continueBtn.addEventListener('click', () => {
-    if (activeAttempt) {
-      currentQuiz = activeAttempt;
-      activeAttempt = null;
-      startQuizRender();
-    }
-  });
-
-  el.discardAttemptBtn.addEventListener('click', () => {
-    showConfirm('Discard Attempt?', 'This will delete your saved progress for the active attempt.', () => {
-      activeAttempt = null;
-      saveActiveAttempt();
-      renderDashboard();
-      showToast('Attempt discarded', 'success');
-    });
-  });
-
-  /* ============================================================
-     9. QUIZ GENERATION & LOGIC
-     ============================================================ */
-  function startQuiz(config) {
-    let pool = QUESTION_BANK.filter(q => config.weeks.includes(q.week));
-
-    if (config.order === 'shuffleAcross') {
-      pool = shuffle(pool);
-    } else if (config.order === 'shuffleWithinWeek') {
-      const byWeek = {};
-      pool.forEach(q => { if (!byWeek[q.week]) byWeek[q.week] = []; byWeek[q.week].push(q); });
-      pool = [];
-      Object.keys(byWeek).sort((a, b) => a - b).forEach(w => {
-        pool.push(...shuffle(byWeek[w]));
-      });
-    }
-
-    if (config.count < pool.length) {
-      pool = pool.slice(0, config.count);
-    }
-
-    // Prepare questions with shuffled options if requested
-    const questions = pool.map(q => {
-      let opts = q.options.map(o => ({ ...o }));
-      let correct = q.correctAnswer;
-
-      if (config.shuffleOptions) {
-        opts = shuffle(opts);
-        // Re-label A, B, C, D
-        const oldCorrectText = q.options.find(o => o.label === q.correctAnswer).text;
-        opts = opts.map((o, i) => ({ ...o, label: String.fromCharCode(65 + i) }));
-        correct = opts.find(o => o.text === oldCorrectText).label;
-      }
-
-      return {
-        id: q.id, week: q.week, question: q.question,
-        options: opts, correctAnswer: correct, explanation: q.explanation,
-        userAnswer: null
-      };
-    });
-
-    currentQuiz = {
-      questions,
-      currentIndex: 0,
-      answers: {}, // { questionId: label }
-      markedForReview: new Set(),
-      config,
-      startTime: Date.now()
-    };
-
-    activeAttempt = currentQuiz;
-    saveActiveAttempt();
-    startQuizRender();
-  }
-
-  function startQuizRender() {
-    if (!currentQuiz) return;
-    switchView(el.quizView);
-
-    // Setup header
-    const weeksLabel = currentQuiz.config.weeks.length === 12
-      ? 'All Weeks'
-      : 'Week' + (currentQuiz.config.weeks.length > 1 ? 's ' : ' ') + currentQuiz.config.weeks.join(', ');
-    el.quizTitle.textContent = `${weeksLabel} Quiz`;
-    el.quizSubtitle.textContent = `${currentQuiz.questions.length} questions · ${currentQuiz.config.feedback === 'exam' ? 'Exam Mode' : currentQuiz.config.feedback === 'instant' ? 'Instant Feedback' : 'Reveal on Demand'}`;
-
-    // Timer
-    clearInterval(timerInterval);
-    if (currentQuiz.config.timer) {
-      el.quizTimer.hidden = false;
-      timeLeft = currentQuiz.config.timerMinutes * 60;
-      updateTimerDisplay();
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay();
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          showToast("Time's up! Submitting quiz.", 'error');
-          submitQuiz();
-        }
-      }, 1000);
-    } else {
-      el.quizTimer.hidden = true;
-      timeElapsed = Math.floor((Date.now() - currentQuiz.startTime) / 1000);
-    }
-
-    renderQuestion();
-    renderPalette();
-    updateProgressBar();
-  }
-
-  function updateTimerDisplay() {
-    el.quizTimer.textContent = formatTime(Math.max(0, timeLeft));
-    el.quizTimer.classList.toggle('is-warning', timeLeft <= 60);
-  }
-
-  function renderQuestion() {
-    const q = currentQuiz.questions[currentQuiz.currentIndex];
-    const answered = currentQuiz.answers[q.id] !== undefined;
-    const selectedLabel = currentQuiz.answers[q.id];
-
-    // Header
-    el.questionBadge.textContent = `Q${currentQuiz.currentIndex + 1}`;
-    el.questionWeekTag.textContent = `Week ${q.week}`;
-    el.questionText.textContent = q.question;
-
-    // Mark for review
-    const isMarked = currentQuiz.markedForReview.has(q.id);
-    el.markReviewBtn.setAttribute('aria-pressed', isMarked);
-    el.markReviewBtn.classList.toggle('is-active', isMarked);
-
-    // Options
-    el.optionsList.innerHTML = '';
-    q.options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'option';
-      btn.dataset.label = opt.label;
-
-      const isSelected = selectedLabel === opt.label;
-      if (isSelected) btn.classList.add('is-selected');
-
-      // Feedback logic
-      let reveal = false;
-      if (currentQuiz.config.feedback === 'instant' && answered) reveal = true;
-      if (currentQuiz.config.feedback === 'ondemand' && q._revealed) reveal = true;
-
-      if (reveal) {
-        btn.classList.add('is-disabled');
-        if (opt.label === q.correctAnswer) btn.classList.add('is-correct');
-        else if (isSelected) btn.classList.add('is-incorrect');
-      } else if (!currentQuiz.config.allowChange && answered) {
-        btn.classList.add('is-disabled');
-      }
-
-      btn.innerHTML = `<span class="option-label">${opt.label}</span><span class="option-text"></span>`;
-      btn.querySelector('.option-text').textContent = opt.text;
-
-      if (!btn.classList.contains('is-disabled')) {
-        btn.addEventListener('click', () => selectOption(q, opt.label));
-      }
-
-      el.optionsList.appendChild(btn);
-    });
-
-    // Feedback Box
-    let revealFeedback = false;
-    if (currentQuiz.config.feedback === 'instant' && answered) revealFeedback = true;
-    if (currentQuiz.config.feedback === 'ondemand' && q._revealed) revealFeedback = true;
-
-    if (revealFeedback) {
-      el.feedbackBox.hidden = false;
-      el.feedbackBox.className = `feedback-box ${selectedLabel === q.correctAnswer ? 'is-correct' : 'is-incorrect'}`;
-      el.feedbackText.textContent = selectedLabel === q.correctAnswer
-        ? 'Correct!'
-        : `Incorrect. The correct answer is ${q.correctAnswer}.`;
-      if (settings.showExplanation && q.explanation) {
-        el.explanationText.hidden = false;
-        el.explanationText.textContent = q.explanation;
-      } else {
-        el.explanationText.hidden = true;
-      }
-    } else {
-      el.feedbackBox.hidden = true;
-    }
-
-    // Reveal Button
-    el.revealBtn.hidden = !(currentQuiz.config.feedback === 'ondemand' && answered && !q._revealed);
-
-    // Navigation Buttons
-    el.prevBtn.disabled = currentQuiz.currentIndex === 0;
-    if (currentQuiz.currentIndex === currentQuiz.questions.length - 1) {
-      el.nextBtn.hidden = true;
-      el.submitQuizBtn.hidden = false;
-      el.submitQuizBtn.style.display = 'inline-flex';
-    } else {
-      el.nextBtn.hidden = false;
-      el.submitQuizBtn.hidden = true;
-      el.submitQuizBtn.style.display = 'none';
-    }
-  }
-
-  function selectOption(q, label) {
-    if (!currentQuiz.config.allowChange && currentQuiz.answers[q.id] !== undefined) return;
-
-    currentQuiz.answers[q.id] = label;
-    q.userAnswer = label;
-
-    if (currentQuiz.config.feedback === 'instant') {
-      renderQuestion();
-    } else {
-      // Just update selection visually without revealing
-      $$('.option', el.optionsList).forEach(btn => {
-        btn.classList.toggle('is-selected', btn.dataset.label === label);
-      });
-    }
-
-    updateProgressBar();
-    renderPalette();
-    saveActiveAttempt();
-  }
-
-  el.clearAnswerBtn.addEventListener('click', () => {
-    const q = currentQuiz.questions[currentQuiz.currentIndex];
-    delete currentQuiz.answers[q.id];
-    q.userAnswer = null;
-    q._revealed = false;
-    renderQuestion();
-    updateProgressBar();
-    renderPalette();
-    saveActiveAttempt();
-  });
-
-  el.revealBtn.addEventListener('click', () => {
-    const q = currentQuiz.questions[currentQuiz.currentIndex];
-    q._revealed = true;
-    renderQuestion();
-  });
-
-  el.markReviewBtn.addEventListener('click', () => {
-    const q = currentQuiz.questions[currentQuiz.currentIndex];
-    if (currentQuiz.markedForReview.has(q.id)) {
-      currentQuiz.markedForReview.delete(q.id);
-    } else {
-      currentQuiz.markedForReview.add(q.id);
-    }
-    renderQuestion();
-    renderPalette();
-    saveActiveAttempt();
-  });
-
-  function updateProgressBar() {
-    const total = currentQuiz.questions.length;
-    const answered = Object.keys(currentQuiz.answers).length;
-    const pct = (answered / total) * 100;
-    el.quizProgressFill.style.width = pct + '%';
-    el.quizCounter.textContent = `Question ${currentQuiz.currentIndex + 1} of ${total}`;
-    el.quizAnsweredCount.textContent = `${answered} answered`;
-  }
-
-  function renderPalette() {
-    el.paletteGrid.innerHTML = '';
-    currentQuiz.questions.forEach((q, i) => {
-      const btn = document.createElement('button');
-      btn.className = 'palette-btn';
-      btn.textContent = i + 1;
-
-      if (i === currentQuiz.currentIndex) btn.classList.add('is-current');
-      if (currentQuiz.answers[q.id] !== undefined) btn.classList.add('is-answered');
-      if (currentQuiz.markedForReview.has(q.id)) btn.classList.add('is-marked');
-
-      btn.addEventListener('click', () => {
-        currentQuiz.currentIndex = i;
-        renderQuestion();
-        renderPalette();
-        updateProgressBar();
-        if (window.innerWidth <= 1024) el.palettePanel.classList.remove('is-open');
-      });
-
-      el.paletteGrid.appendChild(btn);
-    });
-  }
-
-  el.prevBtn.addEventListener('click', () => {
-    if (currentQuiz.currentIndex > 0) {
-      currentQuiz.currentIndex--;
-      renderQuestion();
-      renderPalette();
-      updateProgressBar();
-    }
-  });
-
-  el.nextBtn.addEventListener('click', () => {
-    if (currentQuiz.currentIndex < currentQuiz.questions.length - 1) {
-      currentQuiz.currentIndex++;
-      renderQuestion();
-      renderPalette();
-      updateProgressBar();
-    }
-  });
-
-  el.paletteToggleBtn.addEventListener('click', () => {
-    el.palettePanel.classList.toggle('is-open');
-    el.paletteToggleBtn.setAttribute('aria-expanded', el.palettePanel.classList.contains('is-open'));
-  });
-
-  el.paletteCloseBtn.addEventListener('click', () => {
-    el.palettePanel.classList.remove('is-open');
-  });
-
-  el.exitQuizBtn.addEventListener('click', () => {
-    showConfirm('Exit Quiz?', 'Your progress will be saved and you can resume later.', () => {
-      clearInterval(timerInterval);
-      activeAttempt = currentQuiz;
-      saveActiveAttempt();
-      currentQuiz = null;
-      renderDashboard();
-      switchView(el.dashboardView);
-    });
-  });
-
-  /* ============================================================
-     10. SUBMIT & SCORING
-     ============================================================ */
-  function submitQuiz() {
-    const total = currentQuiz.questions.length;
-    const answered = Object.keys(currentQuiz.answers).length;
-    if (answered < total) {
-      showConfirm('Submit Quiz?', `You have ${total - answered} unanswered questions. Submit anyway?`, () => {
-        finalizeSubmit();
-      });
-    } else {
-      finalizeSubmit();
-    }
-  }
-
-  el.submitQuizBtn.addEventListener('click', submitQuiz);
-  el.submitQuizBtnSide.addEventListener('click', submitQuiz);
-
-  function finalizeSubmit() {
-    clearInterval(timerInterval);
-    const total = currentQuiz.questions.length;
-    let correct = 0, incorrect = 0, unanswered = 0;
-
-    currentQuiz.questions.forEach(q => {
-      const userAns = currentQuiz.answers[q.id];
-      if (!userAns) {
-        unanswered++;
-      } else if (userAns === q.correctAnswer) {
-        correct++;
-      } else {
-        incorrect++;
-      }
-    });
-
-    const maxMarks = currentQuiz.config.maxMarks === 'total' ? total : currentQuiz.config.maxMarks;
-
-    let rawScore = correct;
-    if (currentQuiz.config.negative) {
-      rawScore = Math.max(0, correct - (incorrect * currentQuiz.config.penalty));
-    }
-
-    const finalScore = (rawScore / total) * maxMarks;
-    const percentage = (finalScore / maxMarks) * 100;
-
-    let timeTakenStr = '';
-    if (currentQuiz.config.timer) {
-      const timeTaken = (currentQuiz.config.timerMinutes * 60) - timeLeft;
-      timeTakenStr = formatTime(timeTaken);
-    } else {
-      const timeTaken = Math.floor((Date.now() - currentQuiz.startTime) / 1000);
-      timeTakenStr = formatTime(timeTaken);
-    }
-
-    // Save attempt
-    const attempt = {
-      id: Date.now().toString(),
-      date: new Date().toISOString(),
-      weeks: currentQuiz.config.weeks,
-      questions: currentQuiz.questions.map(q => ({
-        id: q.id, week: q.week, question: q.question, options: q.options,
-        correctAnswer: q.correctAnswer, explanation: q.explanation,
-        userAnswer: currentQuiz.answers[q.id] || null
-      })),
-      correct, incorrect, unanswered,
-      score: finalScore,
-      maxMarks: maxMarks,
-      percentage: percentage,
-      timeTaken: timeTakenStr
-    };
-
-    progress.history.unshift(attempt);
-    saveProgress();
-
-    activeAttempt = null;
-    saveActiveAttempt();
-    currentQuiz = null;
-
-    renderResults(attempt);
-  }
-
-  /* ============================================================
-     11. RESULTS
-     ============================================================ */
-  function renderResults(attempt) {
-    switchView(el.resultsView);
-
-    // Score Circle
-    const pct = Math.round(attempt.percentage);
-    el.resultsPercent.textContent = pct + '%';
-    el.scoreCircle.style.setProperty('--pct', pct);
-
-    el.resultsTitle.textContent = pct >= 80 ? 'Outstanding!' : pct >= 60 ? 'Good Job!' : pct >= 40 ? 'Keep Practising' : 'Needs Improvement';
-    el.resultsSubtitle.textContent = `You scored ${attempt.correct} out of ${attempt.questions.length} questions correctly.`;
-    el.resultsScore.textContent = attempt.score % 1 === 0 ? attempt.score : attempt.score.toFixed(2);
-    el.resultsMaxMarks.textContent = attempt.maxMarks;
-
-    el.resultsCorrect.textContent = attempt.correct;
-    el.resultsIncorrect.textContent = attempt.incorrect;
-    el.resultsUnanswered.textContent = attempt.unanswered;
-    el.resultsTime.textContent = attempt.timeTaken;
-
-    // Breakdown by week
-    el.weekBreakdownPanel.hidden = attempt.weeks.length <= 1;
-    if (attempt.weeks.length > 1) {
-      el.weekBreakdown.innerHTML = '';
-      attempt.weeks.forEach(w => {
-        const wQs = attempt.questions.filter(q => q.week === w);
-        if (wQs.length === 0) return;
-        const wCorrect = wQs.filter(q => q.userAnswer === q.correctAnswer).length;
-        const wPct = Math.round((wCorrect / wQs.length) * 100);
-
-        const row = document.createElement('div');
-        row.className = 'breakdown-row';
-        row.innerHTML = `
-          <span>Week ${w}</span>
-          <div class="breakdown-bar"><div style="width: ${wPct}%"></div></div>
-          <span>${wCorrect}/${wQs.length}</span>
-        `;
-        el.weekBreakdown.appendChild(row);
-      });
-    }
-
-    // Review List
-    renderReview(attempt, 'all');
-
-    // Filter buttons
-    $$('.review-filters .chip').forEach(chip => {
-      chip.onclick = () => {
-        $$('.review-filters .chip').forEach(c => c.classList.remove('is-active'));
-        chip.classList.add('is-active');
-        renderReview(attempt, chip.dataset.filter);
-      };
-    });
-
-    // Action Buttons
-    el.retryQuizBtn.onclick = () => {
-      openSetupModal(attempt.weeks, 'Retry Quiz');
-    };
-    el.retryIncorrectBtn.onclick = () => {
-      const incorrectQs = attempt.questions.filter(q => q.userAnswer && q.userAnswer !== q.correctAnswer);
-      if (incorrectQs.length === 0) return showToast('No incorrect questions to retry.', 'info');
-      // Create a custom quiz from incorrect questions
-      startCustomRetry(incorrectQs, 'Retry Incorrect');
-    };
-    el.retryUnansweredBtn.onclick = () => {
-      const unansweredQs = attempt.questions.filter(q => !q.userAnswer);
-      if (unansweredQs.length === 0) return showToast('No unanswered questions to retry.', 'info');
-      startCustomRetry(unansweredQs, 'Retry Unanswered');
-    };
-    el.chooseAnotherBtn.onclick = () => {
-      renderDashboard();
-      switchView(el.dashboardView);
-    };
-    el.exportCsvBtn.onclick = () => exportCSV(attempt);
-  }
-
-  function renderReview(attempt, filter) {
-    el.reviewList.innerHTML = '';
-    attempt.questions.forEach((q, i) => {
-      const isCorrect = q.userAnswer === q.correctAnswer;
-      const isUnanswered = !q.userAnswer;
-
-      if (filter === 'correct' && !isCorrect) return;
-      if (filter === 'incorrect' && (isCorrect || isUnanswered)) return;
-      if (filter === 'unanswered' && !isUnanswered) return;
-
-      let statusClass = isUnanswered ? 'is-unanswered' : (isCorrect ? 'is-correct' : 'is-incorrect');
-      let statusText = isUnanswered ? 'Unanswered' : (isCorrect ? 'Correct' : 'Incorrect');
-
-      const item = document.createElement('div');
-      item.className = `review-item ${statusClass}`;
-
-      let optsHtml = '';
-      q.options.forEach(o => {
-        let optClass = '';
-        let tag = '';
-        if (o.label === q.correctAnswer) {
-          optClass = 'is-correct';
-          tag = '<span class="review-tag">Correct Answer</span>';
-        } else if (o.label === q.userAnswer) {
-          optClass = 'is-chosen-wrong';
-          tag = '<span class="review-tag">Your Answer</span>';
-        }
-
-        optsHtml += `
-          <div class="review-option ${optClass}">
-            <span class="r-label">${o.label}</span>
-            <span>${o.text}</span>
-            ${tag}
-          </div>
-        `;
-      });
-
-      item.innerHTML = `
-        <div class="review-head">
-          <span class="q-badge" style="min-width: 36px; height: 26px; padding: 0 8px; font-size: 0.7rem;">Q${i + 1}</span>
-          <span class="q-week-tag">Week ${q.week}</span>
-          <span class="review-status">${statusText}</span>
-        </div>
-        <p class="review-question">${q.question}</p>
-        <div class="review-options">${optsHtml}</div>
-        ${q.explanation ? `<div class="review-explanation"><strong>Explanation:</strong> ${q.explanation}</div>` : ''}
-      `;
-      el.reviewList.appendChild(item);
-    });
-  }
-
-  function startCustomRetry(questions, title) {
-    // We don't shuffle these, just use as is
-    currentQuiz = {
-      questions: questions.map(q => ({
-        ...q,
-        userAnswer: null, // reset
-        _revealed: false
-      })),
-      currentIndex: 0,
-      answers: {},
-      markedForReview: new Set(),
-      config: {
-        weeks: [...new Set(questions.map(q => q.week))].sort((a, b) => a - b),
-        count: questions.length,
-        order: 'original',
-        shuffleOptions: false,
-        feedback: settings.feedback,
-        maxMarks: questions.length,
-        timer: false,
-        timerMinutes: 0,
-        negative: false,
-        penalty: 0,
-        allowChange: true
-      },
-      startTime: Date.now()
-    };
-    activeAttempt = currentQuiz;
-    saveActiveAttempt();
-    startQuizRender();
-  }
-
-  function exportCSV(attempt) {
-    const rows = [
-      ['Question ID', 'Week', 'Question', 'Your Answer', 'Correct Answer', 'Status']
-    ];
-    attempt.questions.forEach(q => {
-      const status = !q.userAnswer ? 'Unanswered' : (q.userAnswer === q.correctAnswer ? 'Correct' : 'Incorrect');
-      rows.push([
-        `"${q.id}"`,
-        q.week,
-        `"${q.question.replace(/"/g, '""')}"`,
-        q.userAnswer || '-',
-        q.correctAnswer,
-        status
-      ]);
-    });
-
-    const csvContent = rows.map(r => r.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `quizlab_results_${new Date().getTime()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  /* ============================================================
-     12. KEYBOARD NAVIGATION
-     ============================================================ */
-  document.addEventListener('keydown', (e) => {
-    if (!el.quizView.hidden && currentQuiz) {
-      if (e.key === 'ArrowRight' && currentQuiz.currentIndex < currentQuiz.questions.length - 1) {
-        if (!el.nextBtn.hidden) el.nextBtn.click();
-      } else if (e.key === 'ArrowLeft' && currentQuiz.currentIndex > 0) {
-        if (!el.prevBtn.disabled) el.prevBtn.click();
-      } else if (['1', '2', '3', '4'].includes(e.key)) {
-        const idx = parseInt(e.key, 10) - 1;
-        const btns = $$('.option', el.optionsList);
-        if (btns[idx] && !btns[idx].classList.contains('is-disabled')) {
-          btns[idx].click();
-        }
-      }
-    }
-  });
-
-  /* ============================================================
-     13. INIT
-     ============================================================ */
-  function init() {
-    loadData();
-    applyTheme(settings.theme);
-    renderDashboard();
-    switchView(el.dashboardView);
-  }
-
-  init();
-
-})();
+  if (el.dashboardBtn) {
+   
